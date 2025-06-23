@@ -54,10 +54,12 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Ensure test dependencies are installed
+                        // Install test dependencies
                         sh 'npm install karma-junit-reporter --save-dev'
-                        // Run tests with Angular CLI
-                        sh 'ng test --no-watch --browsers=ChromeHeadless'
+                        // Set CHROME_BIN for ChromeHeadless
+                        withEnv(['CHROME_BIN=/usr/bin/chromium-browser']) {
+                            sh 'ng test --no-watch --browsers=ChromeHeadless'
+                        }
                     } catch (Exception e) {
                         error "Tests failed: ${e.message}"
                     }
