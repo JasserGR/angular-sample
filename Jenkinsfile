@@ -57,7 +57,7 @@ pipeline {
                         // Install test dependencies
                         sh 'npm install karma-junit-reporter --save-dev'
                         // Set CHROME_BIN for ChromeHeadless
-                        withEnv(['CHROME_BIN=/usr/bin/chromium-browser']) {
+                        withEnv(['CHROME_BIN=/usr/bin/google-chrome']) {
                             sh 'ng test --no-watch --browsers=ChromeHeadless'
                         }
                     } catch (Exception e) {
