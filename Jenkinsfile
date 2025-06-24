@@ -68,7 +68,23 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                echo 'Placeholder for SonarQube analysis'
+                script {
+                    try {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                sonar-scanner \
+                                -Dsonar.projectKey=angular-sample \
+                                -Dsonar.projectName="Angular Sample" \
+                                -Dsonar.sources=src \
+                                -Dsonar.tests=src \
+                                -Dsonar.test.inclusions="**/*.spec.ts" \
+                                -Dsonar.typescript.lcov.reportPaths=coverage/angular-sample/lcov.info
+                            '''
+                        }
+                    } catch (Exception e) {
+                        error "SonarQube analysis failed: ${e.message}"
+                    }
+                }
             }
         }
         stage('Publish to Nexus') {
