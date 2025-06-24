@@ -35,14 +35,11 @@ pipeline {
             steps {
                 script {
                     try {
-                        def eslintInstalled = sh(script: "npm list @angular-eslint/schematics --depth=0", returnStatus: true) == 0
-                        def configExists = fileExists('eslint.config.js') || fileExists('.eslintrc.json')
-                        if (!eslintInstalled && !configExists) {
-                            echo "ESLint not installed and config missing — installing now..."
-                            sh 'ng add @angular-eslint/schematics --skip-confirmation'
-                        } else {
-                            echo "ESLint already installed or config files exist."
-                        }
+                        echo "Trying to ensure @angular-eslint is set up..."
+                        // Try to add ESLint (if already added, it will throw and be caught)
+                        sh 'ng add @angular-eslint/schematics --skip-confirmation || true'
+
+                        // Now run lint
                         sh 'ng lint angular-sample'
                     } catch (Exception e) {
                         error "Linting failed: ${e.message}"
@@ -50,6 +47,7 @@ pipeline {
                 }
             }
         }
+
         stage('Test') {
             steps {
                 script {
