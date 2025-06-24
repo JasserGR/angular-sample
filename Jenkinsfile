@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        nodejs 'Node22' // Matches Node.js version in Jenkins
+        nodejs 'Node22'
     }
     stages {
         stage('Checkout') {
@@ -31,7 +31,7 @@ pipeline {
                 }
             }
         }
-        /* stage('Lint') {
+        stage('Lint') {
             steps {
                 script {
                     try {
@@ -49,7 +49,7 @@ pipeline {
                     }
                 }
             }
-        } */
+        }
         stage('Test') {
             steps {
                 script {
