@@ -3,6 +3,9 @@ pipeline {
     tools {
         nodejs 'Node22'
     }
+    environment  {
+        SONAR_SCANNER_HOME = "/opt/sonar-scanner"
+    }
     stages {
         stage('Checkout') {
             steps {
