@@ -73,7 +73,7 @@ pipeline {
                     try {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                sonar-scanner \
+                                /opt/sonar-scanner/bin/sonar-scanner \
                                 -Dsonar.projectKey=angular-sample \
                                 -Dsonar.projectName="Angular Sample" \
                                 -Dsonar.sources=src \
