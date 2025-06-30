@@ -88,10 +88,17 @@ pipeline {
                 }
             }
         }
-        stage('Publish to Nexus') {
+       stage('Publish to Nexus') {
             steps {
-                echo 'Placeholder for Nexus artifact upload'
-            }
+            		script {
+                		withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]){
+                    		sh '''
+                    			npm config set registry http://localhost:8081/repository/angular-artifacts/Add commentMore actions
+                    			npm publish --access public
+                    		'''
+                    		}
+                		}
+                }
         }
         stage('Build Docker Image') {
             steps {
