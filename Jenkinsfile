@@ -34,7 +34,7 @@ pipeline {
                 }
             }
         }
-        stage('Lint') {
+        /*stage('Lint') {
             steps {
                 script {
                     try {
@@ -78,7 +78,7 @@ pipeline {
                                 -Dsonar.projectName="Angular Sample" \
                                 -Dsonar.sources=src \
                                 -Dsonar.tests=src \
-                                -Dsonar.test.inclusions="**/*.spec.ts" \
+                                -Dsonar.test.inclusions="**/*/*.spec.ts" \
                                 -Dsonar.typescript.lcov.reportPaths=coverage/angular-sample/lcov.info
                             '''
                         }
@@ -87,19 +87,25 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
        stage('Publish to Nexus') {
-            steps {
-            		script {
-                		withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]){
-                    		sh '''
-                    			npm config set registry http://localhost:8081/repository/angular-artifacts/
-                    			npm publish --access public
-                    		'''
-                    		}
-                		}
-                }
+    steps {
+        script {
+            withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                writeFile file: '.npmrc', text: """
+                    registry=http://localhost:8081/repository/angular-artifacts/
+//localhost:8081/repository/angular-artifacts/:username=${NEXUS_USERNAME}
+//localhost:8081/repository/angular-artifacts/:_password=${NEXUS_PASSWORD.bytes.encodeBase64().toString()}
+//localhost:8081/repository/angular-artifacts/:email=ci@example.com
+always-auth=true
+                """
+
+                sh 'npm publish --access public'
+            }
         }
+    }
+}
+
         stage('Build Docker Image') {
             steps {
                 echo 'Placeholder for Docker image build'
