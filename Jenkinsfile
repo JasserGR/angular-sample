@@ -42,13 +42,16 @@ pipeline {
         script {
             try {
                 echo "Running lint using public npm registry..."
-                // Temporarily force public registry for ng add
+
+                // Use public registry for ng add
                 withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
                     sh 'ng add @angular-eslint/schematics --skip-confirmation || true'
                 }
 
-                // Lint still needs builder installed, so install ESLint dependencies manually
-                sh 'npm install --save-dev @angular-eslint/builder @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/template-parser'
+                // Use public registry to install ESLint dependencies manually
+                withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
+                    sh 'npm install --save-dev @angular-eslint/builder @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/template-parser'
+                }
 
                 // Now run lint
                 sh 'ng lint angular-sample'
@@ -58,8 +61,6 @@ pipeline {
         }
     }
 }
-
-
         stage('Test') {
             steps {
                 script {
