@@ -93,7 +93,7 @@ pipeline {
             		script {
                 		withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]){
                     		sh '''
-                    			npm config set registry http://localhost:8081/repository/angular-artifacts/Add commentMore actions
+                    			npm config set registry http://localhost:8081/repository/angular-artifacts/
                     			npm publish --access public
                     		'''
                     		}
