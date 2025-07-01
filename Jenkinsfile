@@ -38,22 +38,27 @@ pipeline {
         }
 
         stage('Lint') {
-            steps {
-                script {
-                    try {
-                        echo "Trying to ensure @angular-eslint is set up..."
-                        // Use npmjs.org registry temporarily for ng add
-                        withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
-                            sh 'ng add @angular-eslint/schematics --skip-confirmation || true'
-                        }
-                        // Run lint
-                        sh 'ng lint angular-sample'
-                    } catch (Exception e) {
-                        error "Linting failed: ${e.message}"
-                    }
+    steps {
+        script {
+            try {
+                echo "Running lint using public npm registry..."
+                // Temporarily force public registry for ng add
+                withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
+                    sh 'ng add @angular-eslint/schematics --skip-confirmation || true'
                 }
+
+                // Lint still needs builder installed, so install ESLint dependencies manually
+                sh 'npm install --save-dev @angular-eslint/builder @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/template-parser'
+
+                // Now run lint
+                sh 'ng lint angular-sample'
+            } catch (Exception e) {
+                error "Linting failed: ${e.message}"
             }
         }
+    }
+}
+
 
         stage('Test') {
             steps {
