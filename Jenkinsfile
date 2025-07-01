@@ -94,11 +94,13 @@ pipeline {
             withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
                 writeFile file: '.npmrc', text: """
                     registry=http://localhost:8081/repository/angular-artifacts/
-//localhost:8081/repository/angular-artifacts/:username=${NEXUS_USERNAME}
-//localhost:8081/repository/angular-artifacts/:_password=${NEXUS_PASSWORD.bytes.encodeBase64().toString()}
-//localhost:8081/repository/angular-artifacts/:email=ci@example.com
-always-auth=true
-                """
+                    @angular-eslint:registry=https://registry.npmjs.org/
+                    //localhost:8081/repository/angular-artifacts/:username=${NEXUS_USERNAME}
+                    //localhost:8081/repository/angular-artifacts/:_password=${NEXUS_PASSWORD.bytes.encodeBase64().toString()}
+                    //localhost:8081/repository/angular-artifacts/:email=ci@example.com
+                    always-auth=true
+                    """
+
 
                 sh 'npm publish --access public'
             }
