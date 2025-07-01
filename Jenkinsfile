@@ -34,7 +34,7 @@ pipeline {
                 }
             }
         }
-        /*stage('Lint') {
+        stage('Lint') {
             steps {
                 script {
                     try {
@@ -78,7 +78,7 @@ pipeline {
                                 -Dsonar.projectName="Angular Sample" \
                                 -Dsonar.sources=src \
                                 -Dsonar.tests=src \
-                                -Dsonar.test.inclusions="**/*/*.spec.ts" \
+                                -Dsonar.test.inclusions="**/*.spec.ts" \
                                 -Dsonar.typescript.lcov.reportPaths=coverage/angular-sample/lcov.info
                             '''
                         }
@@ -87,7 +87,7 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
        stage('Publish to Nexus') {
     steps {
         script {
