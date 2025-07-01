@@ -17,6 +17,8 @@ pipeline {
             steps {
                 script {
                     try {
+                        // Use Nexus registry here if your package.json dependencies are hosted there,
+                        // otherwise set npm_config_registry to public registry if you want public packages
                         sh 'npm install'
                     } catch (Exception e) {
                         error "Failed to install dependencies: ${e.message}"
@@ -38,34 +40,39 @@ pipeline {
         }
 
         stage('Lint') {
-    steps {
-        script {
-            try {
-                echo "Running lint using public npm registry..."
+            steps {
+                script {
+                    try {
+                        echo "Running lint using public npm registry..."
 
-                // Use public registry for ng add
-                withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
-                    sh 'ng add @angular-eslint/schematics --skip-confirmation || true'
+                        // Use public registry for ng add
+                        withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
+                            sh 'ng add @angular-eslint/schematics --skip-confirmation || true'
+                        }
+
+                        // Use public registry to install ESLint dependencies manually
+                        withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
+                            sh 'npm install --save-dev @angular-eslint/builder @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/template-parser'
+                        }
+
+                        // Run lint with default registry (can be Nexus if configured)
+                        sh 'ng lint angular-sample'
+                    } catch (Exception e) {
+                        error "Linting failed: ${e.message}"
+                    }
                 }
-
-                // Use public registry to install ESLint dependencies manually
-                withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
-                    sh 'npm install --save-dev @angular-eslint/builder @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/template-parser'
-                }
-
-                // Now run lint
-                sh 'ng lint angular-sample'
-            } catch (Exception e) {
-                error "Linting failed: ${e.message}"
             }
         }
-    }
-}
+
         stage('Test') {
             steps {
                 script {
                     try {
-                        sh 'npm install karma-junit-reporter --save-dev'
+                        // Install test dependencies from public registry explicitly
+                        withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
+                            sh 'npm install karma-junit-reporter --save-dev'
+                        }
+
                         withEnv(['CHROME_BIN=/usr/bin/google-chrome']) {
                             sh 'ng test --no-watch --browsers=ChromeHeadless'
                         }
@@ -103,8 +110,8 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
                         writeFile file: '.npmrc', text: """
-                            registry=http://localhost:8081/repository/angular-artifacts/
-                            //localhost:8081/repository/angular-artifacts/:username=${NEXUS_USERNAME}
+registry=http://localhost:8081/repository/angular-artifacts/
+//localhost:8081/repository/angular-artifacts/:username=${NEXUS_USERNAME}
 //localhost:8081/repository/angular-artifacts/:_password=${NEXUS_PASSWORD.bytes.encodeBase64().toString()}
 //localhost:8081/repository/angular-artifacts/:email=ci@example.com
 always-auth=true
