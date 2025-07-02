@@ -17,8 +17,6 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Use Nexus registry here if your package.json dependencies are hosted there,
-                        // otherwise set npm_config_registry to public registry if you want public packages
                         sh 'npm install'
                     } catch (Exception e) {
                         error "Failed to install dependencies: ${e.message}"
@@ -45,17 +43,14 @@ pipeline {
                     try {
                         echo "Running lint using public npm registry..."
 
-                        // Use public registry for ng add
                         withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
                             sh 'ng add @angular-eslint/schematics --skip-confirmation || true'
                         }
 
-                        // Use public registry to install ESLint dependencies manually
                         withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
                             sh 'npm install --save-dev @angular-eslint/builder @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/template-parser'
                         }
 
-                        // Run lint with default registry (can be Nexus if configured)
                         sh 'ng lint angular-sample'
                     } catch (Exception e) {
                         error "Linting failed: ${e.message}"
@@ -68,7 +63,6 @@ pipeline {
             steps {
                 script {
                     try {
-                        // Install test dependencies from public registry explicitly
                         withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
                             sh 'npm install karma-junit-reporter --save-dev'
                         }
