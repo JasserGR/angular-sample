@@ -74,7 +74,7 @@ pipeline {
                         }
 
                         withEnv(['CHROME_BIN=/usr/bin/google-chrome']) {
-                            sh 'ng test --no-watch --browsers=ChromeHeadless --code-coverage --coverage-reporters=lcov'
+                            sh 'ng test --no-watch --browsers=ChromeHeadless --code-coverage'
                         }
                     } catch (Exception e) {
                         error "Tests failed: ${e.message}"
