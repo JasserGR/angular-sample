@@ -25,7 +25,7 @@ module.exports = function (config) {
         { type: 'text-summary' }
       ]
     },
-    reporters: ['progress', 'kjhtml', 'junit'],
+    reporters: ['progress', 'kjhtml', 'junit', 'coverage'], // Added 'coverage' here
     junitReporter: {
       outputDir: 'test-results',
       outputFile: 'results.xml',
