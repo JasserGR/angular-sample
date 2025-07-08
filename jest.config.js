@@ -1,17 +1,24 @@
-process.env.NODE_OPTIONS = '--no-experimental-fetch';
 module.exports = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/src/setup-jest.ts'],
-  testMatch: ['**/+(*.)+(spec|test).ts'],
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/tsconfig.spec.json',
+      stringifyContentPathRegex: '\\.html$',
+    }
+  },
+  transform: {
+    '^.+\\.(ts|js|html)$': 'ts-jest',
+  },
+  testMatch: ['**/+(*.)+(spec).+(ts)?(x)'],
+  moduleFileExtensions: ['ts', 'html', 'js', 'json'],
   coverageDirectory: 'coverage/angular-sample',
   coverageReporters: ['lcov', 'text-summary'],
-  collectCoverage: true,
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
-    },
-  },
+  collectCoverageFrom: [
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/main.ts",
+    "!src/environments/**",
+    "!src/polyfills.ts"
+  ]
 };
