@@ -1,10 +1,11 @@
 pipeline {
     agent any
     tools {
-        nodejs 'Node22'
+        nodejs 'Node22' // Make sure this is configured in Jenkins
     }
     environment {
         SONAR_SCANNER_HOME = "/opt/sonar-scanner"
+        CHROME_BIN = "/usr/bin/google-chrome" // Adjust if needed, or install chrome/chromium on your agent
     }
     stages {
         stage('Checkout') {
@@ -17,7 +18,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'npm install'
+                        sh 'npm ci'  // Clean install based on package-lock.json
                     } catch (Exception e) {
                         error "Failed to install dependencies: ${e.message}"
                     }
@@ -41,16 +42,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        echo "Running lint using public npm registry..."
-
-                        withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
-                            sh 'ng add @angular-eslint/schematics --skip-confirmation || true'
-                        }
-
-                        withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
-                            sh 'npm install --save-dev @angular-eslint/builder @angular-eslint/eslint-plugin @angular-eslint/eslint-plugin-template @angular-eslint/template-parser'
-                        }
-
+                        // eslint dependencies should be in package.json, no need to add/install here
                         sh 'ng lint angular-sample'
                     } catch (Exception e) {
                         error "Linting failed: ${e.message}"
@@ -63,13 +55,8 @@ pipeline {
             steps {
                 script {
                     try {
-                        withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
-                            sh 'npm install karma-junit-reporter --save-dev'
-                        }
-
-                        withEnv(['CHROME_BIN=/usr/bin/google-chrome']) {
-                            sh 'ng test --no-watch --browsers=ChromeHeadless --code-coverage'
-                        }
+                        // karma-junit-reporter should be in package.json devDependencies
+                        sh 'ng test --watch=false --browsers=ChromeHeadless --code-coverage'
                     } catch (Exception e) {
                         error "Tests failed: ${e.message}"
                     }
@@ -83,7 +70,7 @@ pipeline {
                     try {
                         withSonarQubeEnv('SonarQube') {
                             sh '''
-                                /opt/sonar-scanner/bin/sonar-scanner \
+                                ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
                                 -Dsonar.projectKey=angular-sample \
                                 -Dsonar.projectName="Angular Sample" \
                                 -Dsonar.sources=src \
@@ -100,26 +87,24 @@ pipeline {
         }
 
         stage('Publish to Nexus') {
-    steps {
-        script {
-            withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-
-                def version = "1.0.${env.BUILD_NUMBER}-${new Date().format('yyyyMMddHHmmss')}"
-
-                sh """ npm version ${version} --no-git-tag-version """
-                writeFile file: '.npmrc', text: """
-                registry=http://localhost:8081/repository/angular-artifacts/
-                //localhost:8081/repository/angular-artifacts/:username=${NEXUS_USERNAME}
-                //localhost:8081/repository/angular-artifacts/:_password=${NEXUS_PASSWORD.bytes.encodeBase64().toString()}
-                //localhost:8081/repository/angular-artifacts/:email=ci@example.com
-                always-auth=true
-                                """
-                sh 'npm publish --access public'
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                        def version = "1.0.${env.BUILD_NUMBER}-${new Date().format('yyyyMMddHHmmss')}"
+                        sh "npm version ${version} --no-git-tag-version"
+                        writeFile file: '.npmrc', text: """
+                        registry=http://localhost:8081/repository/angular-artifacts/
+                        //localhost:8081/repository/angular-artifacts/:username=${NEXUS_USERNAME}
+                        //localhost:8081/repository/angular-artifacts/:_password=${NEXUS_PASSWORD.bytes.encodeBase64().toString()}
+                        //localhost:8081/repository/angular-artifacts/:email=ci@example.com
+                        always-auth=true
+                        """
+                        sh 'npm publish --access public'
+                        // Optional: delete .npmrc here for cleanup
+                    }
+                }
             }
         }
-    }
-}
-
 
         stage('Build Docker Image') {
             steps {
@@ -136,6 +121,7 @@ pipeline {
 
     post {
         always {
+            // Ensure Karma is configured to output JUnit XML to test-results/*.xml for this to work
             junit allowEmptyResults: true, testResults: '**/test-results/*.xml'
             archiveArtifacts artifacts: 'dist/angular-sample/**', allowEmptyArchive: true
         }
@@ -147,3 +133,4 @@ pipeline {
         }
     }
 }
+

@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = function (config) {
   config.set({
     basePath: '',
@@ -5,8 +6,9 @@ module.exports = function (config) {
     plugins: [
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
-      require('karma-junit-reporter'),
       require('karma-coverage'),
+      require('karma-jasmine-html-reporter'),
+      require('karma-junit-reporter'),
       require('@angular-devkit/build-angular/plugins/karma')
     ],
     client: {
@@ -17,15 +19,15 @@ module.exports = function (config) {
       suppressAll: true
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/angular-sample'),
+      dir: path.join(__dirname, './coverage/angular-sample'),
       subdir: '.',
       reporters: [
-        { type: 'lcov' },
+        { type: 'lcovonly' },
         { type: 'html' },
         { type: 'text-summary' }
       ]
     },
-    reporters: ['progress', 'kjhtml', 'junit', 'coverage'], // Added 'coverage' here
+    reporters: ['progress', 'kjhtml', 'junit', 'coverage'],
     junitReporter: {
       outputDir: 'test-results',
       outputFile: 'results.xml',
