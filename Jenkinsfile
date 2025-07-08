@@ -18,7 +18,10 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'npm ci'  // Clean install based on package-lock.json
+                        withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
+			sh 'npm ci'
+			}
+
                     } catch (Exception e) {
                         error "Failed to install dependencies: ${e.message}"
                     }
