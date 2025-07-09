@@ -7,24 +7,18 @@ import {
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
-// Declare require with minimal typing to satisfy ESLint
-declare const require: {
-  context(
-    path: string,
-    deep?: boolean,
-    filter?: RegExp
-  ): {
-    keys(): string[];
-    <T>(id: string): T;
-  };
-};
-
+// Init test environment
 getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting()
 );
 
-// Load all test files using Webpack context
-const testContext = require.context('./', true, /\.spec\.ts$/);
-testContext.keys().forEach(testContext);
+// Vite-based / esbuild-based bundler workaround: use `import.meta.glob` to load tests
+
+const testModules = import.meta.glob('./**/*.spec.ts', { eager: true });
+
+// No need to manually iterate keys — import.meta.glob with eager loads all
+
+// Optional: If you want to log loaded tests for debug
+console.log('Loaded test modules:', Object.keys(testModules));
 
