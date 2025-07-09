@@ -1,4 +1,4 @@
-import 'zone.js'; 
+import 'zone.js';
 import 'zone.js/testing';
 
 import { getTestBed } from '@angular/core/testing';
@@ -7,15 +7,24 @@ import {
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
-
-declare const require: any;
+// Declare require with minimal typing to satisfy ESLint
+declare const require: {
+  context(
+    path: string,
+    deep?: boolean,
+    filter?: RegExp
+  ): {
+    keys(): string[];
+    <T>(id: string): T;
+  };
+};
 
 getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting()
 );
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const context = require.context('./', true, /\.spec\.ts$/);
-context.keys().forEach(context);
+// Load all test files using Webpack context
+const testContext = require.context('./', true, /\.spec\.ts$/);
+testContext.keys().forEach(testContext);
 
