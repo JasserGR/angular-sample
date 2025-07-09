@@ -7,11 +7,20 @@ import {
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
+// Add typings for require.context to avoid TS error
+declare const require: {
+  context(path: string, deep?: boolean, filter?: RegExp): {
+    keys(): string[];
+    <T>(id: string): T;
+  };
+};
+
 getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting()
 );
 
-
-import.meta.glob('./**/*.spec.ts', { eager: true });
+// Load all spec files
+const context = require.context('./', true, /\.spec\.ts$/);
+context.keys().forEach(context);
 
