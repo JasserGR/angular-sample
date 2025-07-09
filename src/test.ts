@@ -7,20 +7,15 @@ import {
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
-// Add typings for require.context to avoid TS error
-declare const require: {
-  context(path: string, deep?: boolean, filter?: RegExp): {
-    keys(): string[];
-    <T>(id: string): T;
-  };
-};
+
+declare const require: any;
 
 getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting()
 );
 
-// Load all spec files
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const context = require.context('./', true, /\.spec\.ts$/);
 context.keys().forEach(context);
 
