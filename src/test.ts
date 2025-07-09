@@ -18,6 +18,6 @@ getTestBed().initTestEnvironment(
   platformBrowserDynamicTesting()
 );
 
-const context = require.context('./', true, /\.spec\.ts$/);
-context.keys().forEach(context);
+const allSpecFiles = import.meta.glob('./**/*.spec.ts', { eager: true });
+
 
