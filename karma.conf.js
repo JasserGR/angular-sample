@@ -19,7 +19,7 @@ module.exports = function (config) {
       suppressAll: true
     },
     coverageReporter: {
-      dir: path.join(__dirname, './coverage/angular-sample'),
+      dir: 'coverage/angular-sample',
       subdir: '.',
       reporters: [
         { type: 'lcovonly' },

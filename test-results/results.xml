@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<testsuite name="Chrome Headless 137.0.0.0 (Linux x86_64)" package="" timestamp="2025-07-11T23:15:17" id="0" hostname="jasser-VMware-Virtual-Platform" tests="4" errors="0" failures="0" time="0.44">
+  <properties>
+    <property name="browser.fullName" value="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/137.0.0.0 Safari/537.36"/>
+  </properties>
+  <testcase name="AppComponent should render title" time="0.395" classname="AppComponent"/>
+  <testcase name="AppComponent should have the 'angular-sample' title" time="0.017" classname="AppComponent"/>
+  <testcase name="AppComponent should create the app" time="0.012" classname="AppComponent"/>
+  <testcase name="TestComponent should create" time="0.016" classname="TestComponent"/>
+  <system-out>
+    <![CDATA[
+]]>
+  </system-out>
+  <system-err/>
+</testsuite>
