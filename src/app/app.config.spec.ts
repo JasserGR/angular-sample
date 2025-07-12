@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 
 describe('appConfig', () => {
   it('should create an ApplicationConfig with correct providers', () => {
+    const config = new ApplicationConfig();
     expect(appConfig).toBeDefined();
     expect(appConfig.providers).toBeDefined();
     expect(appConfig.providers.length).toBe(2);
