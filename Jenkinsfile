@@ -103,7 +103,7 @@ pipeline {
                         always-auth=true
                         """
                         sh 'npm publish --access public'
-                        // Optional: delete .npmrc here for cleanup
+			sh 'rm -f .npmrc'
                     }
                 }
             }
