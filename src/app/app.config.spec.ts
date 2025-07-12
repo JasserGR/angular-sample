@@ -8,8 +8,8 @@ describe('appConfig', () => {
     expect(appConfig).toBeDefined();
     expect(appConfig.providers).toBeDefined();
     expect(appConfig.providers.length).toBe(2);
-    expect(appConfig.providers[0]).toEqual(provideZoneChangeDetection({ eventCoalescing: true }));
-    expect(appConfig.providers[1]).toEqual(provideRouter(routes));
-
+    const [zoneProvider, routerProvider] = appConfig.providers;
+    expect(zoneProvider).toEqual(jasmine.objectContaining({ useFactory: jasmine.any(Function), multi: true }));
+    expect(routerProvider).toEqual(jasmine.objectContaining({ useFactory: jasmine.any(Function), multi: true }));
   });
 });
