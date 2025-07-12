@@ -9,8 +9,9 @@ describe('appConfig', () => {
     expect(appConfig.providers).toBeDefined();
     expect(appConfig.providers.length).toBe(2);
     const [zoneProvider, routerProvider] = appConfig.providers;
-    expect(zoneProvider).toEqual(jasmine.objectContaining({ useFactory: provideZoneChangeDetection, multi: true }));
-    expect(routerProvider).toEqual(jasmine.objectContaining({ useFactory: provideRouter, multi: true }));
-    expect(routes).toBeDefined(); 
+    // Check if providers are functions (Angular providers)
+    expect(zoneProvider).toBe(provideZoneChangeDetection({ eventCoalescing: true }));
+    expect(routerProvider).toBe(provideRouter(routes));
+    expect(routes).toBeDefined(); // Ensure routes is used
   });
 });
