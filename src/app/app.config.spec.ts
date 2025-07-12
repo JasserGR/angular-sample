@@ -5,11 +5,12 @@ import { routes } from './app.routes';
 
 describe('appConfig', () => {
   it('should create an ApplicationConfig with correct providers', () => {
-    const config = new ApplicationConfig();
+    const config = new ApplicationConfig(); 
     expect(appConfig).toBeDefined();
     expect(appConfig.providers).toBeDefined();
     expect(appConfig.providers.length).toBe(2);
     expect(appConfig.providers[0]).toEqual(provideZoneChangeDetection({ eventCoalescing: true }));
     expect(appConfig.providers[1]).toEqual(provideRouter(routes));
+    expect(config).toBeInstanceOf(ApplicationConfig); 
   });
 });
