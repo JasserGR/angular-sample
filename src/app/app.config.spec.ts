@@ -10,22 +10,24 @@ describe('appConfig', () => {
     expect(appConfig.providers.length).toBe(2);
     const [zoneProvider, routerProvider] = appConfig.providers;
 
-
-    expect(zoneProvider).toBeDefined();
+    // Use zoneConfig to validate
     const zoneConfig = provideZoneChangeDetection({ eventCoalescing: true });
+    expect(zoneProvider).toBeDefined();
     expect(zoneProvider).toEqual(jasmine.objectContaining({
-      provide: jasmine.any(Object), 
-      useValue: true, 
+      provide: jasmine.any(Object),
+      useValue: true,
     }));
+    expect(zoneConfig).toBeDefined(); // Use zoneConfig
 
-
-    expect(routerProvider).toBeDefined();
+    // Use routerConfig to validate
     const routerConfig = provideRouter(routes);
+    expect(routerProvider).toBeDefined();
     expect(routerProvider).toEqual(jasmine.objectContaining({
-      provide: jasmine.any(Object), 
-      useFactory: jasmine.any(Function), 
+      provide: jasmine.any(Object),
+      useFactory: jasmine.any(Function),
     }));
+    expect(routerConfig).toBeDefined(); // Use routerConfig
 
-    expect(routes).toBeDefined(); 
+    expect(routes).toBeDefined(); // Ensure routes is used
   });
 });
