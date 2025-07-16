@@ -37,20 +37,17 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: false,
-    browsers: ['ChromeHeadlessNoSandbox'],
-    singleRun: true,
-    restartOnFileChange: false,
+    browsers: ['ChromeHeadlessNoSandbox'], 
+    singleRun: true, 
+    restartOnFileChange: false, 
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',
         flags: ['--no-sandbox', '--disable-gpu']
       }
-    }
-    browsers: ['ChromeHeadlessCustom'],
+    },
     captureTimeout: 120000, 
     browserDisconnectTimeout: 10000, 
-    browserNoActivityTimeout: 60000,
-    singleRun: true,
-    restartOnFileChange: true
+    browserNoActivityTimeout: 60000 
   });
 };
