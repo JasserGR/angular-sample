@@ -68,26 +68,32 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-            steps {
-                script {
-                    try {
-                        withSonarQubeEnv('SonarQube') {
-                            sh '''
-                                ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-                                -Dsonar.projectKey=angular-sample \
-                                -Dsonar.projectName="Angular Sample" \
-                                -Dsonar.sources=src \
-                                -Dsonar.tests=src \
-                                -Dsonar.test.inclusions="**/*.spec.ts" \
-                                -Dsonar.typescript.lcov.reportPaths=coverage/angular-sample/lcov.info
-                            '''
-                        }
-                    } catch (Exception e) {
-                        error "SonarQube analysis failed: ${e.message}"
-                    }
-                }
-            }
-        }
+	    steps {
+		script {
+		    try {
+		        withSonarQubeEnv('SonarQube') {
+		            sh '''
+		                ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+		                -Dsonar.projectKey=angular-sample \
+		                -Dsonar.projectName="Angular Sample" \
+		                -Dsonar.sources=src \
+		                -Dsonar.tests=src \
+		                -Dsonar.test.inclusions="**/*.spec.ts" \
+		                -Dsonar.typescript.lcov.reportPaths=coverage/angular-sample/lcov.info
+		            '''
+		        }
+		    } catch (Exception e) {
+		        error "SonarQube analysis failed: ${e.message}"
+		    }
+		    timeout(time: 5, unit: 'MINUTES') {
+		        def qg = waitForQualityGate()
+		        if (qg.status != 'OK') {
+		            error "Pipeline aborted due to Quality Gate failure: ${qg.status}"
+		        }
+		    }
+		}
+	    }
+	}
 
         stage('Publish to Nexus') {
             steps {
