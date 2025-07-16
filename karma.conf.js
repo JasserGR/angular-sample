@@ -46,5 +46,11 @@ module.exports = function (config) {
         flags: ['--no-sandbox', '--disable-gpu']
       }
     }
+    browsers: ['ChromeHeadlessCustom'],
+    captureTimeout: 120000, 
+    browserDisconnectTimeout: 10000, 
+    browserNoActivityTimeout: 60000,
+    singleRun: true,
+    restartOnFileChange: true
   });
 };
