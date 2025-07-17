@@ -1,11 +1,14 @@
 pipeline {
     agent any
     tools {
-        nodejs 'Node22' // Make sure this is configured in Jenkins
+        nodejs 'Node22' // Ensure this Node.js version is configured in Jenkins
     }
     environment {
         SONAR_SCANNER_HOME = "/opt/sonar-scanner"
-        CHROME_BIN = "/usr/bin/google-chrome" // Adjust if needed, or install chrome/chromium on your agent
+        CHROME_BIN = "/usr/bin/google-chrome" // Adjust if Chromium is used instead
+        NEXUS_URL = "http://localhost:8081" // Replace with your Nexus Docker registry URL
+        NEXUS_CREDENTIALS = credentials('nexus-credentials') // Jenkins credential ID for Nexus
+        DOCKER_IMAGE = "NEXUS_USERNAME/angular-sample" // Replace with your Docker Hub username or Nexus repo
     }
     stages {
         stage('Checkout') {
@@ -19,9 +22,8 @@ pipeline {
                 script {
                     try {
                         withEnv(['npm_config_registry=https://registry.npmjs.org/']) {
-			sh 'npm ci'
-			}
-
+                            sh 'npm ci'
+                        }
                     } catch (Exception e) {
                         error "Failed to install dependencies: ${e.message}"
                     }
@@ -45,7 +47,6 @@ pipeline {
             steps {
                 script {
                     try {
-                        // eslint dependencies should be in package.json, no need to add/install here
                         sh 'ng lint angular-sample'
                     } catch (Exception e) {
                         error "Linting failed: ${e.message}"
@@ -58,7 +59,6 @@ pipeline {
             steps {
                 script {
                     try {
-                        // karma-junit-reporter should be in package.json devDependencies
                         sh 'ng test --watch=false --browsers=ChromeHeadless --code-coverage'
                     } catch (Exception e) {
                         error "Tests failed: ${e.message}"
@@ -68,32 +68,34 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-	    steps {
-		script {
-		    try {
-		        withSonarQubeEnv('SonarQube') {
-		            sh '''
-		                ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
-		                -Dsonar.projectKey=angular-sample \
-		                -Dsonar.projectName="Angular Sample" \
-		                -Dsonar.sources=src \
-		                -Dsonar.tests=src \
-		                -Dsonar.test.inclusions="**/*.spec.ts" \
-		                -Dsonar.typescript.lcov.reportPaths=coverage/angular-sample/lcov.info
-		            '''
-		        }
-		    } catch (Exception e) {
-		        error "SonarQube analysis failed: ${e.message}"
-		    }
-		    /*timeout(time: 10, unit: 'MINUTES') {
-		        def qg = waitForQualityGate()
-		        if (qg.status != 'OK') {
-		            error "Pipeline aborted due to Quality Gate failure: ${qg.status}"
-		        }
-		    }*/
-		}
-	    }
-	}
+            steps {
+                script {
+                    try {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '''
+                                ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                                -Dsonar.projectKey=angular-sample \
+                                -Dsonar.projectName="Angular Sample" \
+                                -Dsonar.sources=src \
+                                -Dsonar.tests=src \
+                                -Dsonar.test.inclusions="**/*.spec.ts" \
+                                -Dsonar.typescript.lcov.reportPaths=coverage/angular-sample/lcov.info
+                            '''
+                        }
+                    } catch (Exception e) {
+                        error "SonarQube analysis failed: ${e.message}"
+                    }
+                    /* Quality Gate check temporarily commented out due to timeout issues
+                    timeout(time: 10, unit: 'MINUTES') {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to Quality Gate failure: ${qg.status}"
+                        }
+                    }
+                    */
+                }
+            }
+        }
 
         stage('Publish to Nexus') {
             steps {
@@ -109,7 +111,7 @@ pipeline {
                         always-auth=true
                         """
                         sh 'npm publish --access public'
-			sh 'rm -f .npmrc'
+                        sh 'rm -f .npmrc'
                     }
                 }
             }
@@ -117,7 +119,18 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                echo 'Placeholder for Docker image build'
+                script {
+                    try {
+                        // Build Docker image with the build number as tag
+                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
+                        // Log in to Nexus Docker registry
+                        sh "echo ${NEXUS_CREDENTIALS_PSW} | docker login ${NEXUS_URL} -u ${NEXUS_CREDENTIALS_USR} --password-stdin"
+                        // Push the Docker image to Nexus
+                        sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                    } catch (Exception e) {
+                        error "Docker image build or push failed: ${e.message}"
+                    }
+                }
             }
         }
 
@@ -130,7 +143,7 @@ pipeline {
 
     post {
         always {
-            // Ensure Karma is configured to output JUnit XML to test-results/*.xml for this to work
+            // Ensure Karma is configured to output JUnit XML to test-results/*.xml
             junit allowEmptyResults: true, testResults: '**/test-results/*.xml'
             archiveArtifacts artifacts: 'dist/angular-sample/**', allowEmptyArchive: true
         }
@@ -142,4 +155,3 @@ pipeline {
         }
     }
 }
-
