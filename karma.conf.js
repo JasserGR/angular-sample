@@ -35,19 +35,21 @@ module.exports = function (config) {
     },
     port: 9876,
     colors: true,
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_DEBUG, 
     autoWatch: false,
-    browsers: ['ChromeHeadlessNoSandbox'], 
-    singleRun: true, 
-    restartOnFileChange: false, 
+    browsers: ['ChromeHeadlessNoSandbox'],
+    singleRun: true,
+    restartOnFileChange: false,
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-gpu']
+        flags: ['--no-sandbox', '--disable-gpu', '--headless', '--remote-debugging-port=9222', '--disable-dev-shm-usage'] 
       }
     },
-    captureTimeout: 120000, 
-    browserDisconnectTimeout: 10000, 
-    browserNoActivityTimeout: 60000 
+    captureTimeout: 300000, 
+    browserDisconnectTolerance: 3,
+    browserDisconnectTimeout: 20000, 
+    browserNoActivityTimeout: 120000,
+    processKillTimeout: 5000 
   });
 };
