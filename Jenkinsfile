@@ -8,7 +8,7 @@ pipeline {
         CHROME_BIN = "/usr/bin/google-chrome" // Adjust if Chromium is used instead
         NEXUS_URL = "http://localhost:8081" // Replace with your Nexus Docker registry URL
         NEXUS_CREDENTIALS = credentials('nexus-credentials') // Jenkins credential ID for Nexus
-        DOCKER_IMAGE = "${NEXUS_CREDENTIALS_USR}/angular-sample" // Replace with your Docker Hub username or Nexus repo
+        DOCKER_IMAGE = "${NEXUS_CREDENTIALS_USR.toLowerCase()}/angular-sample" // Replace with your Docker Hub username or Nexus repo
     }
     stages {
         stage('Checkout') {
