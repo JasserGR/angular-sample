@@ -118,20 +118,20 @@ pipeline {
         }
 
        stage('Build Docker Image') {
-            steps {
-                script {
-                    try {
-                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
-                        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-                            sh 'echo $NEXUS_PASSWORD | docker login ${NEXUS_URL}/repository/docker-hosted/ -u $NEXUS_USERNAME --password-stdin'
-                        }
-                        sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
-                    } catch (Exception e) {
-                        error "Docker image build or push failed: ${e.message}"
-                    }
-                }
-            }
-        }
+          steps {
+              script {
+                  try {
+                      sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
+                      withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                          sh 'echo $NEXUS_PASSWORD | docker login ${NEXUS_URL}/repository/docker-hosted/ -u $NEXUS_USERNAME --password-stdin'
+                      }
+                      sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                  } catch (Exception e) {
+                      error "Docker image build or push failed: ${e.message}"
+                  }
+              }
+          }
+}
 
         stage('Deploy') {
             steps {
