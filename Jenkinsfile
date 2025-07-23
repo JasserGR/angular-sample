@@ -6,9 +6,9 @@ pipeline {
     environment {
         SONAR_SCANNER_HOME = "/opt/sonar-scanner"
         CHROME_BIN = "/usr/bin/google-chrome" // Adjust if Chromium is used instead
-        NEXUS_URL = "http://localhost:8081" // Replace with your Nexus Docker registry URL
+        NEXUS_URL = "http://localhost:8081" // Base Nexus URL
         NEXUS_CREDENTIALS = credentials('nexus-credentials') // Jenkins credential ID for Nexus
-        DOCKER_IMAGE = "${NEXUS_CREDENTIALS_USR.toLowerCase()}/angular-sample" // Replace with your Docker Hub username or Nexus repo
+        DOCKER_IMAGE = "localhost:8082/${NEXUS_CREDENTIALS_USR.toLowerCase()}/angular-sample" // Include Nexus port and username
     }
     stages {
         stage('Checkout') {
@@ -117,7 +117,7 @@ pipeline {
             }
         }
 
-       stage('Build Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
                     try {
