@@ -117,15 +117,14 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+       stage('Build Docker Image') {
             steps {
                 script {
                     try {
-                        // Build Docker image with the build number as tag
                         sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
-                        // Log in to Nexus Docker registry
-                        sh "echo ${NEXUS_CREDENTIALS_PSW} | docker login ${NEXUS_URL} -u ${NEXUS_CREDENTIALS_USR} --password-stdin"
-                        // Push the Docker image to Nexus
+                        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                            sh 'echo $NEXUS_PASSWORD | docker login ${NEXUS_URL}/repository/docker-hosted/ -u $NEXUS_USERNAME --password-stdin'
+                        }
                         sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
                     } catch (Exception e) {
                         error "Docker image build or push failed: ${e.message}"
