@@ -1,14 +1,14 @@
 pipeline {
     agent any
     tools {
-        nodejs 'Node22' // Ensure this Node.js version is configured in Jenkins
+        nodejs 'Node22' 
     }
     environment {
         SONAR_SCANNER_HOME = "/opt/sonar-scanner"
-        CHROME_BIN = "/usr/bin/google-chrome" // Adjust if Chromium is used instead
-        NEXUS_URL = "http://localhost:8081" // Base Nexus URL
-        NEXUS_CREDENTIALS = credentials('nexus-credentials') // Jenkins credential ID for Nexus
-        DOCKER_IMAGE = "localhost:8082/${NEXUS_CREDENTIALS_USR.toLowerCase()}/angular-sample" // Include Nexus port and username
+        CHROME_BIN = "/usr/bin/google-chrome" 
+        NEXUS_URL = "http://localhost:8081" 
+        NEXUS_CREDENTIALS = credentials('nexus-credentials') 
+        DOCKER_IMAGE = "localhost:8082/${NEXUS_CREDENTIALS_USR.toLowerCase()}/angular-sample" 
     }
     stages {
         stage('Checkout') {
@@ -132,7 +132,19 @@ pipeline {
                 }
             }
         }
-
+        stage('Verify Docker Image') {
+            steps {
+                script {
+                    try {
+                        sh "docker pull ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                        sh "docker inspect ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                        echo "Docker image ${DOCKER_IMAGE}:${env.BUILD_NUMBER} verified successfully."
+                    } catch (Exception e) {
+                        error "Docker image verification failed: ${e.message}"
+                    }
+                }
+            }
+        }
         stage('Deploy') {
             steps {
                 echo 'Deploying... (Placeholder for deployment logic)'
