@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: angular-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: angular-sample
+  template:
+    metadata:
+      labels:
+        app: angular-sample
+    spec:
+      containers:
+      - name: angular-sample
+        image: localhost:8082/jenkins-user/angular-sample:TAG
+        ports:
+        - containerPort: 80
