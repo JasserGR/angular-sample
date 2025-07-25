@@ -145,6 +145,24 @@ pipeline {
                 }
             }
         }
+      stage('Generate Build Metadata') {
+          steps {
+              script {
+                  try {
+                      def metadata = """
+                      Build Number: ${env.BUILD_NUMBER}
+                      Timestamp: ${new Date().format('yyyy-MM-dd HH:mm:ss z')}
+                      Docker Image: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}
+                      """
+                      writeFile file: 'build-metadata.txt', text: metadata
+                      archiveArtifacts artifacts: 'build-metadata.txt', allowEmptyArchive: false
+                      echo "Build metadata generated and archived."
+                  } catch (Exception e) {
+                      error "Build metadata generation failed: ${e.message}"
+                  }
+              }
+          }
+      }
         stage('Deploy') {
             steps {
                 echo 'Deploying... (Placeholder for deployment logic)'
