@@ -12,6 +12,8 @@ spec:
       labels:
         app: angular-sample
     spec:
+      imagePullSecrets:
+      - name: nexus-secret
       containers:
       - name: angular-sample
         image: localhost:8082/jenkins-user/angular-sample:TAG
