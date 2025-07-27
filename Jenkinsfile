@@ -179,7 +179,7 @@ pipeline {
 		}
 	    }
 	}
-
+}
     post {
         always {
             // Ensure Karma is configured to output JUnit XML to test-results/*.xml
@@ -194,3 +194,4 @@ pipeline {
         }
     }
 }
+
