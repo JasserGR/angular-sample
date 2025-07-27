@@ -163,12 +163,22 @@ pipeline {
               }
           }
       }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying... (Placeholder for deployment logic)'
-            }
-        }
-    }
+        stage('Deploy to Kubernetes') {
+	    steps {
+		script {
+		    try {
+		        sh """
+		        kubectl apply -f k8s/deployment.yaml
+		        kubectl set image deployment/angular-sample angular-sample=${DOCKER_IMAGE}:${env.BUILD_NUMBER} --record
+		        kubectl rollout status deployment/angular-sample --timeout=2m
+		        """
+		        echo "Deployment to Kubernetes completed successfully."
+		    } catch (Exception e) {
+		        error "Kubernetes deployment failed: ${e.message}"
+		    }
+		}
+	    }
+	}
 
     post {
         always {
