@@ -123,7 +123,7 @@ pipeline {
                     try {
                         sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
                         withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-                            sh 'echo $NEXUS_PASSWORD | docker login http://192.168.2.136:8082 -u $NEXUS_USERNAME --password-stdin'
+                            sh 'echo $NEXUS_PASSWORD | docker login http://localhost:8082 -u $NEXUS_USERNAME --password-stdin'
                         }
                         sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
                     } catch (Exception e) {
