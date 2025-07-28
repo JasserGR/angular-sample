@@ -8,7 +8,7 @@ pipeline {
         CHROME_BIN = "/usr/bin/google-chrome" 
         NEXUS_URL = "http://localhost:8081" 
         NEXUS_CREDENTIALS = credentials('nexus-credentials') 
-        DOCKER_IMAGE = "localhost:8082/${NEXUS_CREDENTIALS_USR.toLowerCase()}/angular-sample" 
+        DOCKER_IMAGE = "192.168.2.136:8082/${NEXUS_CREDENTIALS_USR.toLowerCase()}/angular-sample" 
     }
     stages {
         stage('Checkout') {
@@ -123,7 +123,7 @@ pipeline {
                     try {
                         sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
                         withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-                            sh 'echo $NEXUS_PASSWORD | docker login http://localhost:8082 -u $NEXUS_USERNAME --password-stdin'
+                            sh 'echo $NEXUS_PASSWORD | docker login http://192.168.2.136:8082 -u $NEXUS_USERNAME --password-stdin'
                         }
                         sh "docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
                     } catch (Exception e) {
@@ -164,22 +164,22 @@ pipeline {
           }
       }
         stage('Deploy to Kubernetes') {
-    steps {
-        script {
-            try {
-                sh """
-                kubectl apply -f k8s/deployment.yaml --validate=false
-                kubectl set image deployment/angular-sample angular-sample=192.168.49.1:8082/jenkins-user/angular-sample:${env.BUILD_NUMBER} --record
-                kubectl rollout status deployment/angular-sample --timeout=2m
-                """
-                echo "Deployment to Kubernetes completed successfully."
-            } catch (Exception e) {
-                error "Kubernetes deployment failed: ${e.message}"
+            steps {
+                script {
+                    try {
+                        sh """
+                        kubectl apply -f k8s/deployment.yaml --validate=false
+                        kubectl set image deployment/angular-sample angular-sample=${DOCKER_IMAGE}:${env.BUILD_NUMBER} --record
+                        kubectl rollout status deployment/angular-sample --timeout=2m
+                        """
+                        echo "Deployment to Kubernetes completed successfully."
+                    } catch (Exception e) {
+                        error "Kubernetes deployment failed: ${e.message}"
+                    }
+                }
             }
         }
     }
-}
-}
     post {
         always {
             // Ensure Karma is configured to output JUnit XML to test-results/*.xml
@@ -194,4 +194,3 @@ pipeline {
         }
     }
 }
-
