@@ -16,6 +16,6 @@ spec:
       - name: nexus-secret
       containers:
       - name: angular-sample
-        image: 192.168.49.1:8082/jenkins-user/angular-sample:TAG
+        image: 192.168.2.136:8082/jenkins-user/angular-sample:TAG
         ports:
         - containerPort: 80
