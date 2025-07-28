@@ -8,7 +8,7 @@ pipeline {
         CHROME_BIN = "/usr/bin/google-chrome" 
         NEXUS_URL = "http://localhost:8081" 
         NEXUS_CREDENTIALS = credentials('nexus-credentials') 
-        DOCKER_IMAGE = "192.168.2.136:8082/${NEXUS_CREDENTIALS_USR.toLowerCase()}/angular-sample" 
+        DOCKER_IMAGE = "localhost:8082/${NEXUS_CREDENTIALS_USR.toLowerCase()}/angular-sample"
     }
     stages {
         stage('Checkout') {
@@ -169,7 +169,7 @@ pipeline {
                     try {
                         sh """
                         kubectl apply -f k8s/deployment.yaml --validate=false
-                        kubectl set image deployment/angular-sample angular-sample=${DOCKER_IMAGE}:${env.BUILD_NUMBER} --record
+                        kubectl set image deployment/angular-sample angular-sample=192.168.2.136:8082/jenkins-user/angular-sample:${env.BUILD_NUMBER} --record
                         kubectl rollout status deployment/angular-sample --timeout=2m
                         """
                         echo "Deployment to Kubernetes completed successfully."
